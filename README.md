@@ -1,6 +1,6 @@
 # generic-server
 
-A local Docker stack that runs one WordPress, Joomla, or Drupal site at a time. It is for local development only and should never be used in production.
+A local Docker stack that runs one PHP site at a time. `cms-install` installs WordPress, Joomla, or Drupal, and [docs/other-apps.md](docs/other-apps.md) has the steps for Laravel, Symfony, CodeIgniter, CakePHP, Craft CMS, Statamic, and Grav. It is for local development only and should never be used in production.
 
 The `CMS` value in `.env` picks which NGINX config is loaded, and the `cli` container installs and manages the site with `digitalblake/light-cli`.
 
@@ -18,14 +18,14 @@ All host ports bind to `127.0.0.1`, so nothing is reachable from other machines 
 | mailpit    | Mailpit, which catches every email PHP sends                                                           | http://localhost:24213           |
 | webgrind   | Webgrind, which reads Xdebug profiles                                                                  | http://localhost:24214           |
 | redis      | Redis 8 object cache                                                                                   |                                  |
-| cli        | light-cli 6.5.0 with wp-cli, Composer, pnpm, and browser-sync. Drupal sites get Drush through Composer | 24215 and 24216 for browser-sync |
+| cli        | light-cli 6.6.0 with wp-cli, Composer, pnpm, and browser-sync. Drupal sites get Drush through Composer | 24215 and 24216 for browser-sync |
 
 Only the gateway, php, and cli containers can reach the internet. [docs/security.md](docs/security.md) explains why and lists what each container is allowed to do.
 
 ## Requirements
 
 - Docker Desktop
-- The `digitalblake/light-cli:6.5.0` image. Version 6.5.0 adds the PHP extensions that Drush and the Joomla installer need. Build it from the `light-cli` repository with `docker build -t digitalblake/light-cli:6.5.0 .` until it is published to Docker Hub.
+- The `digitalblake/light-cli:6.6.0` image. Versions 6.5.0 and 6.6.0 add the PHP extensions that Drush, the Joomla installer, and the apps in [docs/other-apps.md](docs/other-apps.md) need. Build it from the `light-cli` repository with `docker build -t digitalblake/light-cli:6.6.0 .` until it is published to Docker Hub.
 
 ## Setup
 
@@ -43,13 +43,15 @@ Only the gateway, php, and cli containers can reach the internet. [docs/security
     | Joomla    | `joomla`    | `/var/www/html`     |
     | Drupal    | `drupal`    | `/var/www/html/web` |
 
+    For any other PHP app, use `CMS=generic` or the app's own template, and the `DOCROOT` listed in [docs/other-apps.md](docs/other-apps.md).
+
 3. Start the stack.
 
     ```sh
     docker compose up -d
     ```
 
-4. Open a shell in the cli container and install the site. `cms-install` asks for a site name and an admin username, email, and password.
+4. Open a shell in the cli container and install the site. `cms-install` asks for a site name and an admin username, email, and password. For other apps, use `composer-create` and the steps in [docs/other-apps.md](docs/other-apps.md).
 
     ```sh
     docker compose exec cli zsh
@@ -66,21 +68,24 @@ The site is then at http://localhost:24210. The code is in `./app` on your machi
 
 Each install uses a random four-letter table prefix. The admin password is never written to a file.
 
+For any other `CMS` value, `cms-install` prints the `composer-create` command and the path to [docs/other-apps.md](docs/other-apps.md) and installs nothing.
+
 ## CLI commands
 
 These commands work inside the cli container.
 
-| Command            | What it does                                                   |
-| ------------------ | -------------------------------------------------------------- |
-| `cms-install`      | Installs the CMS named by `CMS` into an empty `./app`          |
-| `wp`               | wp-cli                                                         |
-| `drush`            | Runs `vendor/bin/drush` from the Drupal project                |
-| `joomla`           | Runs `php cli/joomla.php` from the Joomla site                 |
-| `composer`         | Composer 2                                                     |
-| `db-export`        | Writes a gzipped dump of the site database to `./data/backups` |
-| `db-import <file>` | Loads a `.sql` or `.sql.gz` file into the site database        |
-| `db-cli`           | Opens a MariaDB prompt on the site database                    |
-| `root`             | Changes to `/var/www/html`                                     |
+| Command                     | What it does                                                         |
+| --------------------------- | -------------------------------------------------------------------- |
+| `cms-install`               | Installs the CMS named by `CMS` into an empty `./app`                |
+| `composer-create <package>` | Runs `composer create-project` for the package into an empty `./app` |
+| `wp`                        | wp-cli                                                               |
+| `drush`                     | Runs `vendor/bin/drush` from the Drupal project                      |
+| `joomla`                    | Runs `php cli/joomla.php` from the Joomla site                       |
+| `composer`                  | Composer 2                                                           |
+| `db-export`                 | Writes a gzipped dump of the site database to `./data/backups`       |
+| `db-import <file>`          | Loads a `.sql` or `.sql.gz` file into the site database              |
+| `db-cli`                    | Opens a MariaDB prompt on the site database                          |
+| `root`                      | Changes to `/var/www/html`                                           |
 
 `docker/cli/functions.zsh` defines the commands that are not part of light-cli. Docker mounts that single file into the container, so after you edit it, recreate the cli container with `docker compose up -d --force-recreate cli` to load the new version.
 
@@ -110,7 +115,7 @@ The stack holds one site at a time, so switching deletes the current site and it
 
 1. Run `./scripts/hard-reset.sh`.
 2. Change `CMS` and `DOCROOT` in `.env`.
-3. Start the stack and run `cms-install` again.
+3. Start the stack and run `cms-install`, or `composer-create` for another app.
 
 ## Mail
 
@@ -129,3 +134,4 @@ Xdebug is installed in the php container and off by default. Set `XDEBUG_MODE` i
 - [docs/xdebug.md](docs/xdebug.md): step debugging and profiling
 - [docs/security.md](docs/security.md): what each container can access and why
 - [docs/tuning.md](docs/tuning.md): the reasons behind the PHP, OPcache, PHP-FPM, and MariaDB settings
+- [docs/other-apps.md](docs/other-apps.md): installing Laravel, Symfony, CodeIgniter, CakePHP, Craft CMS, Statamic, and Grav

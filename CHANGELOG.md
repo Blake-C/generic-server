@@ -4,6 +4,21 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.2.0] - 2026-10-07
+
+### Added
+
+- `CMS=generic` and `docker/nginx/generic.conf.template` for PHP apps other than WordPress, Joomla, and Drupal.
+- `docker/nginx/grav.conf.template`, based on the NGINX config that ships with Grav.
+- `composer-create`, which runs `composer create-project` into `./app` even though `./app` holds a `.gitkeep`.
+- `docs/other-apps.md` with tested steps for Laravel, Symfony, CodeIgniter 4, CakePHP, Craft CMS, Statamic, and Grav.
+
+### Changed
+
+- The cli container uses light-cli 6.6.0, which adds the bcmath, exif, pcntl, pdo_sqlite, sqlite3, redis, and imagick PHP extensions.
+- `CMS` can name any template in `docker/nginx`. If the template file does not exist, `docker compose up` stops with an error.
+- `cms-install` prints the `composer-create` command and the path to `docs/other-apps.md` when `CMS` is not `wordpress`, `joomla`, or `drupal`.
+
 ## [1.1.0] - 2026-10-07
 
 ### Added
