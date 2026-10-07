@@ -1,6 +1,27 @@
 name: ${COMPOSE_PROJECT_NAME:-generic-server}
 
 services:
+  nginx:
+    image: nginx:1.31-alpine
+    restart: unless-stopped
+    environment:
+      DOCROOT: ${DOCROOT:-/var/www/html}
+    volumes:
+      - ./app:/var/www/html:ro
+      - ./docker/nginx/${CMS:?Set CMS to wordpress, joomla, or drupal}.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./docker/nginx/snippets:/etc/nginx/snippets:ro
+    ports:
+      - 127.0.0.1:24210:80
+    depends_on:
+      php:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://127.0.0.1/nginx-health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   php:
     build:
       context: ./docker/php

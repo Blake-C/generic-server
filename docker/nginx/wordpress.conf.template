@@ -1,0 +1,38 @@
+upstream php_fpm {
+	server php:9000;
+	keepalive 16;
+}
+
+server {
+	listen 80;
+	server_name _;
+	root ${DOCROOT};
+
+	include /etc/nginx/snippets/common.conf;
+
+	location = /wp-config.php {
+		return 404;
+	}
+
+	location = /xmlrpc.php {
+		return 403;
+	}
+
+	location ~* ^/wp-content/uploads/.*\.php$ {
+		return 403;
+	}
+
+	location ~* \.(css|js|gif|ico|jpg|jpeg|png|svg|webp|avif|woff|woff2|ttf|eot|otf)$ {
+		expires max;
+		log_not_found off;
+		try_files $uri =404;
+	}
+
+	location / {
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	location ~ \.php$ {
+		include /etc/nginx/snippets/php-fpm.conf;
+	}
+}
