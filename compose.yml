@@ -46,6 +46,34 @@ services:
       retries: 3
       start_period: 20s
 
+  cli:
+    image: digitalblake/light-cli:6.5.0
+    tty: true
+    stdin_open: true
+    working_dir: /var/www/html
+    environment:
+      SHELL: /bin/zsh
+      CMS: ${CMS}
+      SITE_URL: ${SITE_URL}
+      DB_HOST: db
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JOOMLA_VERSION: ${JOOMLA_VERSION:-6.1.4}
+      BROWSER_SYNC_PORT: 3000
+    volumes:
+      - ./app:/var/www/html
+      - ./data/backups:/var/www/backups
+      - ./data/pnpm-store:/home/webdev/node/.local/share/pnpm/store
+      - ./docker/cli/functions.zsh:/home/webdev/.config/zsh/functions.zsh:ro
+      - ./docker/cli/php.ini:/etc/php84/conf.d/zz-generic-server.ini:ro
+    ports:
+      - 127.0.0.1:24215:3000
+      - 127.0.0.1:24216:3001
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: mariadb:12.3
     restart: unless-stopped
