@@ -32,6 +32,7 @@ Every image tag is pinned to an exact version.
 
 - The nginx master process starts as root so it can listen on port 80, change the owner of its temp folders with `CHOWN`, and start workers as the nginx user with `SETUID` and `SETGID`. It failed to start in testing with `CHOWN` removed.
 - phpMyAdmin's Apache starts as root for the same reasons, minus `CHOWN`.
+- The phpMyAdmin image writes a random `blowfish_secret` to `/etc/phpmyadmin/config.secret.inc.php` the first time it starts, which fails on a read-only root filesystem. `docker/phpmyadmin/config.secret.inc.php` is mounted read-only at that path instead, and it reads the secret from `PMA_BLOWFISH_SECRET` in `.env`, so the file in the repository holds no secret. The image's startup script also tries to create an empty `config.user.inc.php` and logs a "Read-only file system" error. phpMyAdmin only loads that file when it exists, so the error has no effect.
 - The `/etc/nginx/conf.d` tmpfs is where the nginx image writes `default.conf` after it fills in `${DOCROOT}` in the template for the chosen CMS.
 
 ### Why cli has a writable root filesystem

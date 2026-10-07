@@ -63,7 +63,7 @@ if [[ "$answer" != "$CONFIRM_WORD" ]]; then
 fi
 
 printf '\nStopping containers...\n'
-if ! (cd "$ROOT" && CMS="${CMS:-wordpress}" docker compose down --remove-orphans); then
+if ! (cd "$ROOT" && CMS="${CMS:-wordpress}" PMA_BLOWFISH_SECRET="${PMA_BLOWFISH_SECRET:-unused-during-compose-down}" docker compose down --remove-orphans); then
 	fail 'docker compose down failed, so nothing was deleted. Start Docker Desktop and run hard-reset again.'
 fi
 

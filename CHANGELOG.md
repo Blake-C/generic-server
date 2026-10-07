@@ -4,6 +4,12 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.1] - 2026-10-07
+
+### Fixed
+
+- phpMyAdmin showed "Failed to read configuration file!" because its startup script could not write `config.secret.inc.php` on the read-only root filesystem. The secret now comes from `PMA_BLOWFISH_SECRET` in `.env` through a read-only `docker/phpmyadmin/config.secret.inc.php`.
+
 ## [1.3.0] - 2026-10-07
 
 ### Changed

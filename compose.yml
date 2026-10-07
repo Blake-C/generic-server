@@ -205,12 +205,15 @@ services:
     cpus: 1
     environment:
       PMA_HOST: db
+      PMA_BLOWFISH_SECRET: ${PMA_BLOWFISH_SECRET:?Set PMA_BLOWFISH_SECRET in .env to 32 random characters, for example the output of openssl rand -hex 16}
       UPLOAD_LIMIT: 64M
     tmpfs:
       - /tmp
       - /var/run/apache2
       - /var/lock/apache2
       - /sessions
+    volumes:
+      - ./docker/phpmyadmin/config.secret.inc.php:/etc/phpmyadmin/config.secret.inc.php:ro
     networks:
       - backend
     depends_on:

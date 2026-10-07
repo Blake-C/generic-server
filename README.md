@@ -29,7 +29,7 @@ Only the gateway, php, and cli containers can reach the internet. [docs/security
 
 ## Setup
 
-1. Copy the environment template, then change both database passwords in `.env`.
+1. Copy the environment template. In `.env`, change both database passwords, and set `PMA_BLOWFISH_SECRET` to the output of `openssl rand -hex 16`. phpMyAdmin uses that secret to encrypt its login cookie, and it has to be exactly 32 characters.
 
     ```sh
     cp env.example .env
