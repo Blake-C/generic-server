@@ -1,0 +1,5 @@
+{
+	"phpCodeSniffer.standard": "Automatic",
+	"phpCodeSniffer.autoExecutable": true,
+	"phpCodeSniffer.exclude": ["**/vendor/**", "**/node_modules/**"]
+}

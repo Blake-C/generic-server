@@ -18,6 +18,7 @@
 .idea
 .vscode/*
 !.vscode/launch.json
+!.vscode/settings.json
 
 ### Generated ###
 *.log
