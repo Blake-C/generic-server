@@ -1,0 +1,72 @@
+upstream php_fpm {
+	server php:9000;
+	keepalive 16;
+}
+
+server {
+	listen 80;
+	server_name _;
+	root ${DOCROOT};
+
+	include /etc/nginx/snippets/common.conf;
+
+	location ~* ^/(\.git|cache|bin|logs|backup|tmp|tests|webserver-configs)/.*$ {
+		return 403;
+	}
+
+	location ~* ^/user/(env/[^/]+/)?config/.*$ {
+		return 403;
+	}
+
+	location ~* ^/user/(env/[^/]+/)?accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$ {
+		try_files $uri =404;
+	}
+
+	location ~* ^/user/(env/[^/]+/)?accounts/.*$ {
+		return 403;
+	}
+
+	location ~* ^/user/(env/[^/]+/)?data/.*\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf)$ {
+		try_files $uri =404;
+	}
+
+	location ~* ^/user/(env/[^/]+/)?data/.*$ {
+		return 403;
+	}
+
+	location ~* ^/(images|assets)/.*\.(php|php2|php3|php4|php5|php7|php8|phar|phtml|pht|phtm|phps|pl|py|cgi|sh|bat)$ {
+		return 403;
+	}
+
+	location ~* ^/(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ {
+		return 403;
+	}
+
+	location ~* ^/user/.*\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ {
+		return 403;
+	}
+
+	location ~ ^/(LICENSE\.txt|composer\.lock|composer\.json|nginx\.conf|web\.config|htaccess\.txt|\.htaccess) {
+		return 403;
+	}
+
+	location ~* /_app/immutable/.*\.(js|css|woff2?)$ {
+		try_files $uri =404;
+		access_log off;
+		add_header Cache-Control "public, max-age=31536000, immutable" always;
+	}
+
+	location ~* \.(jpe?g|png|gif|webp|avif|bmp|ico|svg|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|css|js|woff2?|ttf|otf|eot)$ {
+		try_files $uri $uri/ /index.php?$query_string;
+		expires 30d;
+		access_log off;
+	}
+
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+
+	location ~ \.php$ {
+		include /etc/nginx/snippets/php-fpm.conf;
+	}
+}
