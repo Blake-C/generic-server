@@ -4,6 +4,14 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.0] - 2026-10-07
+
+### Added
+
+- `phpcs.xml.dist` at the repository root, which excludes every file so code without its own ruleset is not checked and the PHP_CodeSniffer extension stops reporting a missing configuration file.
+- `.vscode/settings.json`, which sets the PHP_CodeSniffer extension to find each app's ruleset and each app's own `vendor/bin/phpcs`.
+- `docs/coding-standards.md` with tested example rulesets for WordPress, Drupal, Joomla, and the PHP frameworks.
+
 ## [1.3.1] - 2026-10-07
 
 ### Fixed

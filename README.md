@@ -135,3 +135,4 @@ Xdebug is installed in the php container and off by default. Set `XDEBUG_MODE` i
 - [docs/security.md](docs/security.md): what each container can access and why
 - [docs/tuning.md](docs/tuning.md): the reasons behind the PHP, OPcache, PHP-FPM, and MariaDB settings
 - [docs/other-apps.md](docs/other-apps.md): installing Laravel, Symfony, CodeIgniter, CakePHP, Craft CMS, Statamic, and Grav
+- [docs/coding-standards.md](docs/coding-standards.md): PHPCS rulesets for each app in VS Code

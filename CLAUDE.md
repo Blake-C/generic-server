@@ -10,6 +10,7 @@ A local-only Docker Compose stack that runs one PHP site at a time. `CMS` in `.e
 - `docs/xdebug.md` covers debugging, profiling, and Webgrind.
 - `docs/tuning.md` covers the PHP, OPcache, FPM, MariaDB, and Redis settings.
 - `docs/other-apps.md` covers the tested install steps for non-CMS PHP apps.
+- `docs/coding-standards.md` covers the PHPCS fallback ruleset, per-app rulesets, and the VS Code extension settings.
 
 ## Rules specific to this repo
 
