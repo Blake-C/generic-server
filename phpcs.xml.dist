@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<ruleset name="generic-server-fallback">
+	<exclude-pattern>*</exclude-pattern>
+	<rule ref="PSR12"/>
+</ruleset>
