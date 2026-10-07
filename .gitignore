@@ -1,0 +1,31 @@
+.env
+
+/app/*
+!/app/.gitkeep
+
+/data/*/*
+!/data/*/.gitkeep
+
+### OSX ###
+.AppleDouble
+.DS_Store
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+### Editors ###
+.idea
+.vscode/*
+!.vscode/launch.json
+
+### Generated ###
+*.log
+*.sql
+*.sql.gz
+*.zip
+node_modules
+.pnpm-store
+
+### Claude Code ###
+.claude/settings.local.json
