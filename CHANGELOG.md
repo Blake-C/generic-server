@@ -4,6 +4,12 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.0] - 2026-10-07
+
+### Added
+
+- `scripts/hard-reset.sh`, which stops the stack and deletes the site code, database, and Xdebug files after you type `reset` to confirm.
+
 ## [1.0.0] - 2026-10-07
 
 ### Added

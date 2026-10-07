@@ -84,15 +84,33 @@ These commands work inside the cli container.
 
 `docker/cli/functions.zsh` defines the commands that are not part of light-cli. Docker mounts that single file into the container, so after you edit it, recreate the cli container with `docker compose up -d --force-recreate cli` to load the new version.
 
+## Resetting the project
+
+`scripts/hard-reset.sh` puts the project back to the state it was in before `cms-install` ran. Run it in your Mac's terminal. It does not work inside the cli container, because that container cannot see `./data/mariadb` and cannot stop the other containers.
+
+```sh
+./scripts/hard-reset.sh
+```
+
+The script lists what it will delete and how much space each folder uses, then waits for you to type `reset`. Any other answer cancels without changing anything. It also refuses to run without an interactive terminal, so it cannot be confirmed by piping input into it.
+
+After you confirm, it runs `docker compose down` and permanently deletes everything except `.gitkeep` from these folders:
+
+- `./app`, which holds the site code, uploads, and config files such as `wp-config.php`
+- `./data/mariadb`, which holds the whole database
+- `./data/xdebug`, which holds Xdebug profiles and the Xdebug log
+
+Nothing goes to the Trash. It keeps `.env`, `./data/backups`, and `./data/pnpm-store`. If `docker compose down` fails, for example because Docker Desktop is not running, the script stops before deleting anything.
+
+Run `db-export` in the cli container first if you want to keep a copy of the database.
+
 ## Switching to a different CMS
 
-The stack holds one site at a time, so switching deletes the current site and its database. Run `db-export` first if you want to keep the database.
+The stack holds one site at a time, so switching deletes the current site and its database.
 
-1. Stop the stack with `docker compose down`.
-2. Delete everything in `./app` except `.gitkeep`.
-3. Delete everything in `./data/mariadb` except `.gitkeep`.
-4. Change `CMS` and `DOCROOT` in `.env`.
-5. Start the stack and run `cms-install` again.
+1. Run `./scripts/hard-reset.sh`.
+2. Change `CMS` and `DOCROOT` in `.env`.
+3. Start the stack and run `cms-install` again.
 
 ## Mail
 
