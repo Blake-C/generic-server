@@ -4,6 +4,13 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.0] - 2026-10-07
+
+### Changed
+
+- The php image builds GD with AVIF support, which clears Drupal's "Unsupported image file format: AVIF" status report warning.
+- `cms-install` sets `$settings['enable_html5_validation'] = FALSE;` in Drupal's `settings.php`, which clears Drupal 11.4's HTML5 validation status report warning.
+
 ## [1.2.0] - 2026-10-07
 
 ### Added

@@ -64,7 +64,7 @@ The site is then at http://localhost:24210. The code is in `./app` on your machi
 
 - **WordPress**: downloads the latest WordPress with `wp core download`, writes `wp-config.php` from the database values in `.env`, runs `wp core install`, and sets post-name permalinks.
 - **Joomla**: downloads the Joomla release named by `JOOMLA_VERSION` (6.1.4 by default) from GitHub, checks its SHA-256 digest against the one GitHub lists for that release, and runs the Joomla CLI installer. The installer deletes the `installation` folder when it finishes.
-- **Drupal**: runs `composer create-project drupal/recommended-project`, adds Drush, runs `drush site:install standard`, and adds `localhost` and `127.0.0.1` to `trusted_host_patterns` in `settings.php`.
+- **Drupal**: runs `composer create-project drupal/recommended-project`, adds Drush, runs `drush site:install standard`, adds `localhost` and `127.0.0.1` to `trusted_host_patterns` in `settings.php`, and sets `enable_html5_validation` to `FALSE`. Drupal 12 turns HTML5 form validation off by default, and Drupal 11.4 shows a status report warning until the setting is in `settings.php` ([change record](https://www.drupal.org/node/3537128)). With it set to `FALSE`, forms work the way they will in Drupal 12. Change it to `TRUE` to keep the browser's HTML5 validation, which brings back a status report warning that the setting will be removed in Drupal 13.
 
 Each install uses a random four-letter table prefix. The admin password is never written to a file.
 

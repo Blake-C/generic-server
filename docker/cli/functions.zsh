@@ -148,6 +148,7 @@ _install_drupal() {
 	cat >> web/sites/default/settings.php <<-'PHP'
 
 		$settings['trusted_host_patterns'] = ['^localhost$', '^127\.0\.0\.1$'];
+		$settings['enable_html5_validation'] = FALSE;
 	PHP
 	chmod a-w web/sites/default web/sites/default/settings.php
 }
