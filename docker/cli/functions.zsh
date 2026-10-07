@@ -103,11 +103,34 @@ _install_joomla() {
 	return 0
 }
 
-_install_drupal() {
+_composer_create() {
 	rm -rf "$STAGING_DIR"
-	composer create-project drupal/recommended-project "$STAGING_DIR" --no-interaction || return 1
+	composer create-project "$1" "$STAGING_DIR" "${@:2}" --no-interaction || {
+		rm -rf "$STAGING_DIR"
+		return 1
+	}
 	rsync -a "$STAGING_DIR/" "$SERVER_DIR/" || return 1
 	rm -rf "$STAGING_DIR"
+}
+
+composer-create() {
+	if [[ $# -eq 0 ]]; then
+		echo "Usage: composer-create <package> [version] [composer options]"
+		echo "Example: composer-create laravel/laravel"
+		return 1
+	fi
+
+	if ! _cms_app_is_empty; then
+		echo "$SERVER_DIR already has files. Run ./scripts/hard-reset.sh on your Mac first."
+		return 1
+	fi
+
+	_composer_create "$@" || return 1
+	echo "\n$1 is in $SERVER_DIR. Finish its setup with the steps in docs/other-apps.md."
+}
+
+_install_drupal() {
+	_composer_create drupal/recommended-project || return 1
 
 	cd "$SERVER_DIR" || return 1
 	composer require drush/drush --no-interaction || return 1
@@ -134,14 +157,21 @@ cms-install() {
 
 	case "$CMS" in
 		wordpress|joomla|drupal) ;;
+		'')
+			echo "Set CMS in .env to wordpress, joomla, drupal, generic, or the name of a template in docker/nginx."
+			return 1
+			;;
 		*)
-			echo "Set CMS in .env to wordpress, joomla, or drupal."
+			echo "cms-install has no installer for CMS=$CMS."
+			echo "Install the app into $SERVER_DIR yourself. For an app on Packagist, run:"
+			echo "  composer-create <package>"
+			echo "docs/other-apps.md has the steps for common PHP apps."
 			return 1
 			;;
 	esac
 
 	if ! _cms_app_is_empty; then
-		echo "$SERVER_DIR already has files. Clear ./app and ./data/mariadb before installing a new site."
+		echo "$SERVER_DIR already has files. Run ./scripts/hard-reset.sh on your Mac first."
 		return 1
 	fi
 

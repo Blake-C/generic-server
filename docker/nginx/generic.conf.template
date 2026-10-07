@@ -1,0 +1,38 @@
+upstream php_fpm {
+	server php:9000;
+	keepalive 16;
+}
+
+server {
+	listen 80;
+	server_name _;
+	root ${DOCROOT};
+
+	include /etc/nginx/snippets/common.conf;
+
+	location ~ ^/(vendor|node_modules)/ {
+		return 404;
+	}
+
+	location ~* (^|/)(composer\.(json|lock)|package(-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|phpunit\.xml(\.dist)?)$ {
+		return 404;
+	}
+
+	location ~* \.(yml|yaml|twig|neon|ini|env)$ {
+		return 404;
+	}
+
+	location ~* \.(css|js|map|gif|ico|jpg|jpeg|png|svg|webp|avif|woff|woff2|ttf|eot|otf)$ {
+		expires max;
+		log_not_found off;
+		try_files $uri /index.php?$query_string;
+	}
+
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+
+	location ~ \.php(/|$) {
+		include /etc/nginx/snippets/php-fpm.conf;
+	}
+}
