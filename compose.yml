@@ -95,6 +95,37 @@ services:
       retries: 5
       start_period: 30s
 
+  phpmyadmin:
+    image: phpmyadmin:5.2.3
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 64M
+    ports:
+      - 127.0.0.1:24212:80
+    depends_on:
+      db:
+        condition: service_healthy
+
+  mailpit:
+    image: axllent/mailpit:v1.31.4
+    restart: unless-stopped
+    environment:
+      MP_MAX_MESSAGES: 500
+    ports:
+      - 127.0.0.1:24213:8025
+
+  webgrind:
+    build:
+      context: ./docker/webgrind
+    image: generic-server-webgrind:1.9.4
+    restart: unless-stopped
+    volumes:
+      - ./data/xdebug:/profiles:ro
+      - ./app:/host/var/www/html:ro
+    ports:
+      - 127.0.0.1:24214:8080
+
   redis:
     image: redis:8-alpine
     restart: unless-stopped
