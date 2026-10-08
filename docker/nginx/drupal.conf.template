@@ -18,7 +18,7 @@ server {
 		return 403;
 	}
 
-	location ~ ^/sites/[^/]+/files/.*\.php$ {
+	location ~ ^/sites/.*\.php$ {
 		return 403;
 	}
 

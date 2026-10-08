@@ -99,6 +99,6 @@ Each CMS also has its own blocked paths:
 
 - **WordPress**: `wp-config.php`, `xmlrpc.php`, and PHP files under `wp-content/uploads`.
 - **Joomla**: `configuration.php`, the `logs`, `tmp`, `cache`, `cli`, `libraries`, and `installation` folders, PHP files under `images`, and the query string patterns from Joomla's `htaccess.txt`. Because `installation` is blocked, Joomla's web installer does not work, and `cms-install` uses the CLI installer.
-- **Drupal**: the rules from the [NGINX Drupal recipe](https://github.com/nginxinc/nginx-wiki/blob/master/source/start/topics/recipes/drupal.rst), which block `sites/*/private`, PHP under `sites/*/files`, PHP under `vendor`, and Drupal's YAML, Twig, and module source files.
+- **Drupal**: the rules from the [NGINX Drupal recipe](https://github.com/nginxinc/nginx-wiki/blob/master/source/start/topics/recipes/drupal.rst), which block `sites/*/private`, PHP under `vendor`, and Drupal's YAML, Twig, and module source files. The template also blocks every PHP file under `sites`, which the recipe only does for `sites/*/files`. Without the rule for `sites`, PHP-FPM runs `/sites/default/settings.php` when it is requested, and on Drupal CMS the file prints PHP warnings that show its full path.
 - **Generic**: the `vendor` and `node_modules` folders, Composer, npm, pnpm, Yarn, and PHPUnit files, and YAML, Twig, NEON, INI, and `.env` files.
 - **Grav**: the rules from the `webserver-configs/nginx.conf` file that ships with Grav. [other-apps.md](other-apps.md#grav) lists them.

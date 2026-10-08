@@ -4,6 +4,12 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.1] - 2026-10-08
+
+### Security
+
+- The Drupal NGINX template returns 403 for every PHP file under `sites`, so a request for `/sites/default/settings.php` no longer runs the file. On Drupal CMS, running `settings.php` printed PHP warnings that showed the file's full path.
+
 ## [1.5.0] - 2026-10-08
 
 ### Added
