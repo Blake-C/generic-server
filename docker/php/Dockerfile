@@ -14,6 +14,7 @@ RUN apk upgrade --no-cache \
 		libavif \
 		libjpeg-turbo \
 		libpng \
+		libpq \
 		libwebp \
 		libzip \
 		msmtp \
@@ -26,6 +27,7 @@ RUN apk upgrade --no-cache \
 		libavif-dev \
 		libjpeg-turbo-dev \
 		libpng-dev \
+		libpq-dev \
 		libwebp-dev \
 		libzip-dev \
 	&& docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-avif \
@@ -37,6 +39,7 @@ RUN apk upgrade --no-cache \
 		mysqli \
 		opcache \
 		pdo_mysql \
+		pdo_pgsql \
 		zip \
 	&& pecl install \
 		xdebug-${XDEBUG_VERSION} \

@@ -1,6 +1,6 @@
 # generic-server
 
-A local Docker stack that runs one PHP site at a time. `cms-install` installs WordPress, Joomla, or Drupal, and [docs/other-apps.md](docs/other-apps.md) has the steps for Laravel, Symfony, CodeIgniter, CakePHP, Craft CMS, Statamic, and Grav. It is for local development only and should never be used in production.
+A local Docker stack that runs one PHP site at a time. `cms-install` installs WordPress, Joomla, Drupal, or Drupal CMS, and [docs/other-apps.md](docs/other-apps.md) has the steps for Laravel, Symfony, CodeIgniter, CakePHP, Craft CMS, Statamic, and Grav. It is for local development only and should never be used in production.
 
 The `CMS` value in `.env` picks which NGINX config is loaded, and the `cli` container installs and manages the site with `digitalblake/light-cli`.
 
@@ -18,14 +18,14 @@ All host ports bind to `127.0.0.1`, so nothing is reachable from other machines 
 | mailpit    | Mailpit, which catches every email PHP sends                                                           | http://localhost:24213           |
 | webgrind   | Webgrind, which reads Xdebug profiles                                                                  | http://localhost:24214           |
 | redis      | Redis 8 object cache                                                                                   |                                  |
-| cli        | light-cli 6.6.0 with wp-cli, Composer, pnpm, and browser-sync. Drupal sites get Drush through Composer | 24215 and 24216 for browser-sync |
+| cli        | light-cli 6.7.0 with wp-cli, Composer, pnpm, and browser-sync. Drupal sites get Drush through Composer | 24215 and 24216 for browser-sync |
 
 Only the gateway, php, and cli containers can reach the internet. [docs/security.md](docs/security.md) explains why and lists what each container is allowed to do.
 
 ## Requirements
 
 - Docker Desktop
-- The `digitalblake/light-cli:6.6.0` image. Versions 6.5.0 and 6.6.0 add the PHP extensions that Drush, the Joomla installer, and the apps in [docs/other-apps.md](docs/other-apps.md) need. Build it from the `light-cli` repository with `docker build -t digitalblake/light-cli:6.6.0 .` until it is published to Docker Hub.
+- The `digitalblake/light-cli:6.7.0` image. Versions 6.5.0 and 6.6.0 add the PHP extensions that Drush, the Joomla installer, and the apps in [docs/other-apps.md](docs/other-apps.md) need, and 6.7.0 adds pdo_pgsql for Drupal CMS. Build it from the `light-cli` repository with `docker build -t digitalblake/light-cli:6.7.0 .` until it is published to Docker Hub.
 
 ## Setup
 
@@ -64,7 +64,9 @@ The site is then at http://localhost:24210. The code is in `./app` on your machi
 
 - **WordPress**: downloads the latest WordPress with `wp core download`, writes `wp-config.php` from the database values in `.env`, runs `wp core install`, and sets post-name permalinks.
 - **Joomla**: downloads the Joomla release named by `JOOMLA_VERSION` (6.1.4 by default) from GitHub, checks its SHA-256 digest against the one GitHub lists for that release, and runs the Joomla CLI installer. The installer deletes the `installation` folder when it finishes.
-- **Drupal**: runs `composer create-project drupal/recommended-project`, adds Drush, runs `drush site:install standard`, adds `localhost` and `127.0.0.1` to `trusted_host_patterns` in `settings.php`, and sets `enable_html5_validation` to `FALSE`. Drupal 12 turns HTML5 form validation off by default, and Drupal 11.4 shows a status report warning until the setting is in `settings.php` ([change record](https://www.drupal.org/node/3537128)). With it set to `FALSE`, forms work the way they will in Drupal 12. Change it to `TRUE` to keep the browser's HTML5 validation, which brings back a status report warning that the setting will be removed in Drupal 13.
+- **Drupal**: asks whether to install Drupal core or Drupal CMS, and an empty answer picks core. Drupal core and Drupal CMS both add `localhost` and `127.0.0.1` to `trusted_host_patterns` in `settings.php` and set `enable_html5_validation` to `FALSE`. Drupal 12 turns HTML5 form validation off by default, and Drupal 11.4 shows a status report warning until the setting is in `settings.php` ([change record](https://www.drupal.org/node/3537128)). With it set to `FALSE`, forms work the way they will in Drupal 12. Change it to `TRUE` to keep the browser's HTML5 validation, which brings back a status report warning that the setting will be removed in Drupal 13.
+    - **Drupal core** runs `composer create-project drupal/recommended-project`, adds Drush, and runs `drush site:install standard`.
+    - **Drupal CMS** asks for a site template, either `starter` or `blank`, and an empty answer picks `starter`. It runs `composer create-project drupal/cms:^2`, which includes Drush, and then `composer drupal:recipe-unpack`. For `starter` it runs `drush site:install` with no recipe named, which installs the Starter site template, and for `blank` it names the `drupal_cms_site_template_base` recipe, which installs the Blank site template ([Drupal CMS project README](https://git.drupalcode.org/project/drupal_cms/-/raw/2.x/project_template/README.md)). The install takes about four minutes. Drupal CMS turns on the experimental Package Manager module, so its status report shows two Package Manager warnings.
 
 Each install uses a random four-letter table prefix. The admin password is never written to a file.
 

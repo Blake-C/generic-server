@@ -50,12 +50,12 @@ There is no test suite. A change is verified by running the stack:
     	sh -c '/docker-entrypoint.d/20-envsubst-on-templates.sh >/dev/null && nginx -t'
     ```
 
-- For an end-to-end check, run `up -d`, then install a site with `docker compose exec -T cli zsh -ic cms-install`, feeding the four prompts on stdin. Then `curl` the site and the blocked paths.
+- For an end-to-end check, run `up -d`, then install a site with `docker compose exec -T cli zsh -ic cms-install`, feeding the prompts on stdin. `cms-install` asks four admin prompts, and with `CMS=drupal` it first asks `core` or `cms`, followed by `starter` or `blank` when the answer is `cms`. Then `curl` the site and the blocked paths.
 - Run `shellcheck scripts/hard-reset.sh`.
 - Format Markdown and JSON with Prettier through light-cli, because Prettier is not installed on the host:
 
     ```sh
-    docker run --rm -v "$PWD":/work -w /work digitalblake/light-cli:6.6.0 sh -c 'npx --yes prettier@3 --print-width 120 --no-semi --single-quote --tab-width 4 --trailing-comma es5 --use-tabs --write README.md CHANGELOG.md docs/*.md'
+    docker run --rm -v "$PWD":/work -w /work digitalblake/light-cli:6.7.0 sh -c 'npx --yes prettier@3 --print-width 120 --no-semi --single-quote --tab-width 4 --trailing-comma es5 --use-tabs --write README.md CHANGELOG.md docs/*.md'
     ```
 
 - Run a Snyk container scan on the built `generic-server-php` and `generic-server-webgrind` images. Snyk cannot reach Docker Desktop, so `docker save` each image to a tar file and scan `docker-archive:<path>`.
@@ -105,7 +105,7 @@ The nginx service mounts `docker/nginx/${CMS}.conf.template` with `create_host_p
 
 ### light-cli
 
-`digitalblake/light-cli` comes from `../light-cli`, a separate repository. The PHP extensions that the CLI tools need, such as pdo_mysql for Drush or bcmath for Craft, are added to `../light-cli/Dockerfile`. The image is then rebuilt locally with a version bump, and the tag in `compose.yml` is updated to match. Each bump so far has had to stay under 75 MB of growth, and a bigger addition goes in a thin local Dockerfile instead.
+`digitalblake/light-cli` comes from `../light-cli`, a separate repository. The PHP extensions that the CLI tools need, such as pdo_mysql for Drush, bcmath for Craft, or pdo_pgsql for Drupal CMS, are added to `../light-cli/Dockerfile`. The image is then rebuilt locally with a version bump, and the tag in `compose.yml` is updated to match. Each bump so far has had to stay under 75 MB of growth, and a bigger addition goes in a thin local Dockerfile instead.
 
 ## Docs and changelog
 

@@ -4,6 +4,17 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.0] - 2026-10-08
+
+### Added
+
+- `cms-install` asks whether to install Drupal core or Drupal CMS 2 when `CMS=drupal`, and for Drupal CMS it then asks for the Starter or Blank site template.
+- The php image has the pdo_pgsql extension, which the amazee.io AI provider in Drupal CMS 2 requires.
+
+### Changed
+
+- The cli container uses light-cli 6.7.0, which adds pdo_pgsql so Composer can install Drupal CMS 2.
+
 ## [1.4.0] - 2026-10-07
 
 ### Added

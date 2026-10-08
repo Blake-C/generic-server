@@ -15,7 +15,32 @@ _cms_prompt_admin() {
 }
 
 _cms_clear_admin() {
-	unset CMS_SITE_NAME CMS_ADMIN_USER CMS_ADMIN_EMAIL CMS_ADMIN_PASSWORD
+	unset CMS_SITE_NAME CMS_ADMIN_USER CMS_ADMIN_EMAIL CMS_ADMIN_PASSWORD DRUPAL_EDITION DRUPAL_CMS_TEMPLATE
+}
+
+_drupal_prompt_edition() {
+	read "DRUPAL_EDITION?Drupal core or Drupal CMS? [core/cms] (core): "
+	DRUPAL_EDITION="${DRUPAL_EDITION:-core}"
+
+	case "$DRUPAL_EDITION" in
+		core) return 0 ;;
+		cms) ;;
+		*)
+			echo "Answer core or cms."
+			return 1
+			;;
+	esac
+
+	read "DRUPAL_CMS_TEMPLATE?Site template [starter/blank] (starter): "
+	DRUPAL_CMS_TEMPLATE="${DRUPAL_CMS_TEMPLATE:-starter}"
+
+	case "$DRUPAL_CMS_TEMPLATE" in
+		starter|blank) ;;
+		*)
+			echo "Answer starter or blank."
+			return 1
+			;;
+	esac
 }
 
 _cms_table_prefix() {
@@ -129,21 +154,44 @@ composer-create() {
 	echo "\n$1 is in $SERVER_DIR. Finish its setup with the steps in docs/other-apps.md."
 }
 
-_install_drupal() {
-	_composer_create drupal/recommended-project || return 1
-
-	cd "$SERVER_DIR" || return 1
-	composer require drush/drush --no-interaction || return 1
-
-	vendor/bin/drush site:install standard \
+_drupal_site_install() {
+	"$SERVER_DIR/vendor/bin/drush" site:install "$@" \
 		--db-url="mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:3306/${DB_NAME}" \
 		--db-prefix="$(_cms_table_prefix)" \
 		--site-name="$CMS_SITE_NAME" \
 		--account-name="$CMS_ADMIN_USER" \
 		--account-mail="$CMS_ADMIN_EMAIL" \
 		--account-pass="$CMS_ADMIN_PASSWORD" \
-		--yes || return 1
+		--yes
+}
 
+_install_drupal_core() {
+	_composer_create drupal/recommended-project || return 1
+
+	cd "$SERVER_DIR" || return 1
+	composer require drush/drush --no-interaction || return 1
+
+	_drupal_site_install standard
+}
+
+_install_drupal_cms() {
+	_composer_create 'drupal/cms:^2' || return 1
+
+	cd "$SERVER_DIR" || return 1
+	composer drupal:recipe-unpack --no-interaction || return 1
+
+	cd "$SERVER_DIR/web" || return 1
+	if [[ "$DRUPAL_CMS_TEMPLATE" == blank ]]; then
+		_drupal_site_install ../recipes/drupal_cms_site_template_base
+	else
+		_drupal_site_install
+	fi
+}
+
+_install_drupal() {
+	"_install_drupal_$DRUPAL_EDITION" || return 1
+
+	cd "$SERVER_DIR" || return 1
 	chmod u+w web/sites/default web/sites/default/settings.php
 	cat >> web/sites/default/settings.php <<-'PHP'
 
@@ -173,6 +221,11 @@ cms-install() {
 
 	if ! _cms_app_is_empty; then
 		echo "$SERVER_DIR already has files. Run ./scripts/hard-reset.sh on your Mac first."
+		return 1
+	fi
+
+	if [[ "$CMS" == drupal ]] && ! _drupal_prompt_edition; then
+		_cms_clear_admin
 		return 1
 	fi
 
