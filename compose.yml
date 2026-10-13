@@ -33,6 +33,7 @@ services:
       - 127.0.0.1:24212:8082
       - 127.0.0.1:24213:8083
       - 127.0.0.1:24214:8084
+      - 127.0.0.1:24217:8931
     networks:
       - backend
       - published
@@ -247,3 +248,29 @@ services:
       - ./app:/host/var/www/html:ro
     networks:
       - backend
+
+  playwright:
+    <<: *hardening
+    image: mcr.microsoft.com/playwright/mcp:v0.0.83
+    pids_limit: 512
+    mem_limit: 2g
+    cpus: 2
+    shm_size: 1g
+    working_dir: /screenshots
+    command:
+      - --host=0.0.0.0
+      - --port=8931
+      - --allowed-hosts=localhost:24217,127.0.0.1:24217
+      - --isolated
+      - --output-dir=/screenshots
+      - --viewport-size=1440x900
+      - --timeout-action=30000
+    tmpfs:
+      - /tmp
+      - /home/node:uid=1000,gid=1000
+    volumes:
+      - ./data/screenshots:/screenshots
+    network_mode: service:gateway
+    depends_on:
+      gateway:
+        condition: service_healthy

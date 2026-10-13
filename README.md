@@ -18,9 +18,10 @@ All host ports bind to `127.0.0.1`, so nothing is reachable from other machines 
 | mailpit    | Mailpit, which catches every email PHP sends                                                           | http://localhost:24213           |
 | webgrind   | Webgrind, which reads Xdebug profiles                                                                  | http://localhost:24214           |
 | redis      | Redis 8 object cache                                                                                   |                                  |
+| playwright | Playwright MCP server with headless Chromium, which AI agents use to take screenshots                  | http://localhost:24217/mcp       |
 | cli        | light-cli 6.7.0 with wp-cli, Composer, pnpm, and browser-sync. Drupal sites get Drush through Composer | 24215 and 24216 for browser-sync |
 
-Only the gateway, php, and cli containers can reach the internet. [docs/security.md](docs/security.md) explains why and lists what each container is allowed to do.
+Only the gateway, playwright, php, and cli containers can reach the internet. [docs/security.md](docs/security.md) explains why and lists what each container is allowed to do.
 
 ## Requirements
 
@@ -107,7 +108,7 @@ After you confirm, it runs `docker compose down` and permanently deletes everyth
 - `./data/mariadb`, which holds the whole database
 - `./data/xdebug`, which holds Xdebug profiles and the Xdebug log
 
-Nothing goes to the Trash. It keeps `.env`, `./data/backups`, and `./data/pnpm-store`. If `docker compose down` fails, for example because Docker Desktop is not running, the script stops before deleting anything.
+Nothing goes to the Trash. It keeps `.env`, `./data/backups`, `./data/pnpm-store`, and `./data/screenshots`. If `docker compose down` fails, for example because Docker Desktop is not running, the script stops before deleting anything.
 
 Run `db-export` in the cli container first if you want to keep a copy of the database.
 
@@ -138,3 +139,4 @@ Xdebug is installed in the php container and off by default. Set `XDEBUG_MODE` i
 - [docs/tuning.md](docs/tuning.md): the reasons behind the PHP, OPcache, PHP-FPM, and MariaDB settings
 - [docs/other-apps.md](docs/other-apps.md): installing Laravel, Symfony, CodeIgniter, CakePHP, Craft CMS, Statamic, and Grav
 - [docs/coding-standards.md](docs/coding-standards.md): PHPCS rulesets for each app in VS Code
+- [docs/playwright.md](docs/playwright.md): the browser that AI agents use to take screenshots of the site and its admin

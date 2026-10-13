@@ -49,7 +49,7 @@ printf '                          and setting\n'
 printf '  %s./data/xdebug%s   (%s)  Xdebug profiles and the Xdebug log\n\n' "$BOLD" "$RESET" "$(dir_size data/xdebug)"
 printf 'Nothing is moved to the Trash. Any change in ./app that is not committed\n'
 printf 'to its own repository or copied elsewhere is lost.\n\n'
-printf '%sKept:%s .env, ./data/backups, ./data/pnpm-store, and every .gitkeep file.\n\n' "$YELLOW" "$RESET"
+printf '%sKept:%s .env, ./data/backups, ./data/pnpm-store, ./data/screenshots, and every .gitkeep file.\n\n' "$YELLOW" "$RESET"
 printf 'To keep the database, cancel now and run %sdb-export%s in the cli container first:\n' "$BOLD" "$RESET"
 printf '  docker compose exec cli zsh -ic db-export\n\n'
 

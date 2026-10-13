@@ -4,6 +4,17 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.0] - 2026-10-13
+
+### Added
+
+- A `playwright` service that runs the Playwright MCP server 0.0.83 with headless Chromium, so an AI agent can open the site and its admin and save screenshots to `./data/screenshots`. The MCP server is at http://localhost:24217/mcp, and `.mcp.json` connects Claude Code to it.
+- `docs/playwright.md`, which covers the URLs the browser opens, where screenshots are saved, logging in, and drawing arrows on a page before a screenshot.
+
+### Changed
+
+- The gateway also listens on ports 24210, 24212, 24213, and 24214 inside its container, so the playwright browser opens the same URLs as the Mac.
+
 ## [1.5.1] - 2026-10-08
 
 ### Security

@@ -11,6 +11,7 @@ A local-only Docker Compose stack that runs one PHP site at a time. `CMS` in `.e
 - `docs/tuning.md` covers the PHP, OPcache, FPM, MariaDB, and Redis settings.
 - `docs/other-apps.md` covers the tested install steps for non-CMS PHP apps.
 - `docs/coding-standards.md` covers the PHPCS fallback ruleset, per-app rulesets, and the VS Code extension settings.
+- `docs/playwright.md` covers the Playwright MCP browser that agents use for screenshots.
 
 ## Rules specific to this repo
 
@@ -66,7 +67,8 @@ There is no test suite. A change is verified by running the stack:
 
 - `backend` is `internal: true` and has no internet access. Every service joins it.
 - `egress` has internet access, and only `php` and `cli` join it. `cli` needs it for Composer and CMS downloads. `php` needs it because Xdebug connects to `host.docker.internal:9003`.
-- On Docker Desktop, a port published by a container that is only on an internal network cannot be reached from the Mac. So `gateway`, an nginx container with a fixed config in `docker/gateway/nginx.conf`, is the only container on the `published` network. It forwards host ports 24210 to 24214 to the nginx, db (TCP stream), phpmyadmin, mailpit, and webgrind services. A new service with a web UI gets a new `server` block there and a port mapping on `gateway`, and it does not publish ports of its own.
+- On Docker Desktop, a port published by a container that is only on an internal network cannot be reached from the Mac. So `gateway`, an nginx container with a fixed config in `docker/gateway/nginx.conf`, is the only container on the `published` network. It forwards host ports 24210 to 24214 to the nginx, db (TCP stream), phpmyadmin, mailpit, and webgrind services. Each web UI `server` block also listens on its host port number, so the playwright browser opens the same `localhost:2421x` URLs as the Mac. A new service with a web UI gets a new `server` block there with both `listen` lines and a port mapping on `gateway`, and it does not publish ports of its own.
+- `playwright` runs the Playwright MCP server with `network_mode: service:gateway`, so `localhost:24210` inside it is the gateway. Its MCP port 8931 is published on `gateway` as 24217, and `.mcp.json` points Claude Code at it. Screenshots are saved to `./data/screenshots`. Recreating only `gateway` leaves `playwright` on the old network stack, so run `up -d` afterward.
 - `cli` publishes its own browser-sync ports because it is already on `egress`.
 
 ### Hardening

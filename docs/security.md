@@ -29,10 +29,12 @@ Every image tag is pinned to an exact version.
 | phpmyadmin | root master, www-data workers | `SETUID`, `SETGID`, `NET_BIND_SERVICE`          | yes            | `/tmp`, `/var/run/apache2`, `/var/lock/apache2`, `/sessions` |
 | mailpit    | nobody                        | none                                            | yes            | `/tmp`                                                       |
 | webgrind   | www-data                      | none                                            | yes            | `/tmp`                                                       |
+| playwright | node                          | none                                            | yes            | `/tmp`, `/home/node`, `./data/screenshots`                   |
 
 - The nginx master process starts as root so it can listen on port 80, change the owner of its temp folders with `CHOWN`, and start workers as the nginx user with `SETUID` and `SETGID`. It failed to start in testing with `CHOWN` removed.
 - phpMyAdmin's Apache starts as root for the same reasons, minus `CHOWN`.
 - The phpMyAdmin image writes a random `blowfish_secret` to `/etc/phpmyadmin/config.secret.inc.php` the first time it starts, which fails on a read-only root filesystem. `docker/phpmyadmin/config.secret.inc.php` is mounted read-only at that path instead, and it reads the secret from `PMA_BLOWFISH_SECRET` in `.env`, so the file in the repository holds no secret. The image's startup script also tries to create an empty `config.user.inc.php` and logs a "Read-only file system" error. phpMyAdmin only loads that file when it exists, so the error has no effect.
+- playwright raises `pids_limit` to 512 to leave room for more pages, because the container already used 165 of the default 256 with one browser open on the WordPress admin. Chromium writes its profile and caches under `/home/node`, which is a tmpfs.
 - The `/etc/nginx/conf.d` tmpfs is where the nginx image writes `default.conf` after it fills in `${DOCROOT}` in the template for the chosen CMS.
 
 ### Why cli has a writable root filesystem
@@ -45,18 +47,20 @@ light-cli's zsh setup writes `~/.zcompdump` when it starts, and Corepack, Compos
 - nginx mounts `./app` read-only.
 - php and cli mount `./app` read-write, because php writes uploads and cache files and cli runs installs and Composer.
 - webgrind mounts `./data/xdebug` and `./app` read-only.
+- playwright mounts `./data/screenshots` read-write and has no access to `./app`.
 - No container mounts the Docker socket, your home folder, or anything outside this repository.
 
 ## Networks
 
-| Network     | Internet access         | Members       |
-| ----------- | ----------------------- | ------------- |
-| `backend`   | none (`internal: true`) | every service |
-| `egress`    | yes                     | php, cli      |
-| `published` | yes                     | gateway       |
+| Network     | Internet access         | Members                                                     |
+| ----------- | ----------------------- | ----------------------------------------------------------- |
+| `backend`   | none (`internal: true`) | every service                                               |
+| `egress`    | yes                     | php, cli                                                    |
+| `published` | yes                     | gateway, and playwright through the gateway's network stack |
 
 - A container that is only on `backend` cannot open any connection outside the stack. db, redis, nginx, phpMyAdmin, Mailpit, and Webgrind are on `backend` only.
 - cli is on `egress` because Composer, wp-cli, and the CMS installers download packages.
+- playwright has no networks of its own. It uses `network_mode: service:gateway`, so it shares the gateway's network stack, reaches the site at `http://localhost:24210`, and reaches the internet through `published`. [playwright.md](playwright.md) explains why.
 - php is on `egress` because Xdebug connects to `host.docker.internal:9003`, which an internal-only network has no route to. As a result, CMS admin screens can still download plugins and updates. Use the cli container for Drupal installs anyway, so `composer.json` and `composer.lock` stay in sync with the files on disk.
 
 ### Why a gateway forwards the ports
@@ -65,15 +69,16 @@ In testing on Docker Desktop, a port published by a container that was only on a
 
 So the gateway container is the only one on the `published` network, and it forwards each host port to the service behind it:
 
-| Host port | Gateway port | Forwards to          |
-| --------- | ------------ | -------------------- |
-| 24210     | 8080         | nginx:80             |
-| 24211     | 3306         | db:3306 (TCP stream) |
-| 24212     | 8082         | phpmyadmin:80        |
-| 24213     | 8083         | mailpit:8025         |
-| 24214     | 8084         | webgrind:8080        |
+| Host port | Gateway port | Forwards to                                                         |
+| --------- | ------------ | ------------------------------------------------------------------- |
+| 24210     | 8080         | nginx:80                                                            |
+| 24211     | 3306         | db:3306 (TCP stream)                                                |
+| 24212     | 8082         | phpmyadmin:80                                                       |
+| 24213     | 8083         | mailpit:8025                                                        |
+| 24214     | 8084         | webgrind:8080                                                       |
+| 24217     | 8931         | the playwright MCP server, which shares the gateway's network stack |
 
-The gateway runs NGINX as the nginx user with no capabilities, listens only on ports above 1024, and uses a fixed config from `docker/gateway/nginx.conf`. It has no access to the site code or the database files. cli publishes its browser-sync ports 24215 and 24216 itself, because it is already on `egress`.
+The gateway runs NGINX as the nginx user with no capabilities, listens only on ports above 1024, and uses a fixed config from `docker/gateway/nginx.conf`. It has no access to the site code or the database files. Each `server` block for a web UI also listens on its host port number, such as 24210, so the playwright browser can open the same URLs as the Mac. Any program on the Mac can connect to 24217 and drive the playwright browser, and the MCP server rejects requests whose `Host` header is not `localhost:24217` or `127.0.0.1:24217`. cli publishes its browser-sync ports 24215 and 24216 itself, because it is already on `egress`.
 
 ## Credentials
 
