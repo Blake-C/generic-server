@@ -61,3 +61,38 @@ Playwright's [Docker page](https://playwright.dev/docs/docker) recommends `--ipc
 A container joined with `network_mode: service:gateway` uses the gateway's network stack, so `localhost` inside the playwright container is the gateway and `http://localhost:24210` reaches the site from inside the container. A container on `backend` alone would need a different hostname, which the CMS would redirect away from.
 
 Because the two containers share one network stack, the playwright container cannot publish its own ports. The gateway publishes `127.0.0.1:24217` to port 8931, which the MCP server listens on. When only the gateway is recreated, for example with `docker compose up -d --force-recreate gateway`, the playwright container stays attached to the old gateway's network stack and the MCP server stops answering. Running `docker compose up -d` afterward recreates the playwright container, and the MCP server answers again.
+
+## Updating the image
+
+Between May and September 2026, Microsoft published a new `@playwright/mcp` release every 1 to 5 weeks. Each image includes the Chromium build that its Playwright version uses. The [release notes](https://github.com/microsoft/playwright-mcp/releases) list the changes. The image builds on `node:lts-slim` and does not run `apt-get upgrade`, so a new release only picks up Debian fixes that the Node base image already had on the day it was built.
+
+1. Find the newest stable tag. Skip the `-canary`, `-amd64`, and `-arm64` tags.
+
+    ```sh
+    curl -s https://mcr.microsoft.com/v2/playwright/mcp/tags/list
+    ```
+
+2. Read the new version's `--help` output and compare it with the flags in `compose.yml`. Change any flag that the new version renamed or removed.
+
+    ```sh
+    docker run --rm mcr.microsoft.com/playwright/mcp:<tag> --help
+    ```
+
+3. Change the tag in `compose.yml` and in the `--help` command under Settings above, then start the new container.
+
+    ```sh
+    docker compose pull playwright
+    docker compose up -d playwright
+    ```
+
+4. Open http://localhost:24210 through the MCP server and save a screenshot to confirm the browser still works.
+5. Scan the image with Snyk. Snyk cannot reach Docker Desktop, so save the image to a tar file and scan that.
+
+    ```sh
+    docker save -o "$TMPDIR/playwright-mcp.tar" mcr.microsoft.com/playwright/mcp:<tag>
+    snyk container test "docker-archive:$TMPDIR/playwright-mcp.tar"
+    ```
+
+6. Add a version to `CHANGELOG.md` that names the new tag.
+
+The scan of v0.0.83 on 2026-10-13 found 41 issues. 20 were in Debian 12 packages and 21 were in the npm copy that ships with Node 24.21.0. Snyk listed a fixed Debian version only for perl-base. Nothing in the container runs perl or npm.
