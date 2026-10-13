@@ -4,6 +4,14 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.0] - 2026-10-13
+
+### Added
+
+- `PLAYWRIGHT_INTERNET` in `.env`, which is `off` by default. With `off`, the playwright browser sends every request except the ones to `localhost` to a proxy port that nothing listens on, so it can only load pages from the stack. With `on`, the browser can load pages from the internet.
+- `docs/playwright.md` lists what WordPress screenshots are missing with `off` and the risks of turning it on.
+- `CLAUDE.md` and `AGENTS.md` tell agents to explain those risks and wait for confirmation before turning internet access on.
+
 ## [1.6.0] - 2026-10-13
 
 ### Added

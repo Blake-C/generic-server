@@ -60,7 +60,7 @@ light-cli's zsh setup writes `~/.zcompdump` when it starts, and Corepack, Compos
 
 - A container that is only on `backend` cannot open any connection outside the stack. db, redis, nginx, phpMyAdmin, Mailpit, and Webgrind are on `backend` only.
 - cli is on `egress` because Composer, wp-cli, and the CMS installers download packages.
-- playwright has no networks of its own. It uses `network_mode: service:gateway`, so it shares the gateway's network stack, reaches the site at `http://localhost:24210`, and reaches the internet through `published`. [playwright.md](playwright.md) explains why.
+- playwright has no networks of its own. It uses `network_mode: service:gateway`, so it shares the gateway's network stack and reaches the site at `http://localhost:24210`. The network stack has internet access through `published`, but with `PLAYWRIGHT_INTERNET=off`, which is the default, Chromium sends every request except the ones to `localhost` to a proxy port that nothing listens on, so the browser cannot load pages from the internet. [playwright.md](playwright.md#internet-access) explains both settings and the risks of turning internet access on.
 - php is on `egress` because Xdebug connects to `host.docker.internal:9003`, which an internal-only network has no route to. As a result, CMS admin screens can still download plugins and updates. Use the cli container for Drupal installs anyway, so `composer.json` and `composer.lock` stay in sync with the files on disk.
 
 ### Why a gateway forwards the ports

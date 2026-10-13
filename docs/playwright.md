@@ -21,7 +21,34 @@ The browser shares the gateway container's network, and the gateway listens on t
 
 The site has to be opened at `localhost:24210`, because WordPress, Joomla, and Drupal redirect every request to the URL they were installed with, which is `SITE_URL` in `.env`. An agent can open Mailpit to take screenshots of password reset and notification emails.
 
-The browser can also reach the internet through the gateway's `published` network, so fonts, scripts, and images that a theme loads from a CDN appear in screenshots.
+## Internet access
+
+`PLAYWRIGHT_INTERNET` in `.env` is `off` by default, and with `off` the browser can only load pages from the stack.
+
+With `off`, Compose loads `docker/playwright/internet-off.env` into the container. That file sets `PLAYWRIGHT_MCP_PROXY_SERVER` to `http://127.0.0.1:9`, a port that nothing listens on, and sets `PLAYWRIGHT_MCP_PROXY_BYPASS` to `localhost,127.0.0.1`. Chromium sends every request except the ones to `localhost` and `127.0.0.1` to that proxy, so a request to the internet fails with `net::ERR_PROXY_CONNECTION_FAILED` and the URLs above still load.
+
+With `on`, Compose loads the empty `docker/playwright/internet-on.env`, and the browser reaches the internet through the gateway's `published` network. Any other value stops `docker compose` with an "env file not found" error. After changing the value, run `docker compose up -d playwright`. For one session without editing `.env`, run `PLAYWRIGHT_INTERNET=on docker compose up -d playwright`, and run `docker compose up -d playwright` afterward to turn internet access off again.
+
+The proxy setting only applies to Chromium, so a program in the container other than Chromium could still reach the internet through `published`.
+
+### What WordPress loads from the internet
+
+With `off`, these requests from the browser failed in testing on WordPress 7.1.3:
+
+| Page                               | Hosts                 | What is missing in a screenshot                   |
+| ---------------------------------- | --------------------- | ------------------------------------------------- |
+| Every admin page and the front end | `secure.gravatar.com` | user avatars                                      |
+| Add Plugins                        | `ps.w.org`            | plugin icons                                      |
+| Add Themes                         | `ts.w.org`            | theme preview images                              |
+| New post (block editor)            | `s.w.org`             | an image that the editor loads from WordPress.org |
+
+The rest of the admin loaded from the stack. The Add Plugins and Add Themes pages still list plugin and theme names with `off`, because PHP fetches the listings from WordPress.org through its own `egress` network and the site serves them to the browser.
+
+### Risks of turning it on
+
+- A page on the internet can try to exploit a bug in Chromium. The browser runs with `--no-sandbox`, so code that exploits such a bug would run in the playwright container as the `node` user. The container has no capabilities and a read-only root filesystem, and it can only write to `./data/screenshots`, but it shares the gateway's network, so it can reach the site, phpMyAdmin, Mailpit, the database port, and the internet.
+- The agent reads the text of every page it opens, and a page can contain text written to steer the agent. The agent acts on your Mac with the permissions you gave Claude Code or whichever other agent uses the MCP server.
+- A page can load scripts, fonts, and images from any host, and each of those is content from outside the stack.
 
 ## Screenshots
 

@@ -21,7 +21,7 @@ All host ports bind to `127.0.0.1`, so nothing is reachable from other machines 
 | playwright | Playwright MCP server with headless Chromium, which AI agents use to take screenshots                  | http://localhost:24217/mcp       |
 | cli        | light-cli 6.7.0 with wp-cli, Composer, pnpm, and browser-sync. Drupal sites get Drush through Composer | 24215 and 24216 for browser-sync |
 
-Only the gateway, playwright, php, and cli containers can reach the internet. [docs/security.md](docs/security.md) explains why and lists what each container is allowed to do.
+Only the gateway, playwright, php, and cli containers can reach the internet. The playwright browser cannot load pages from the internet unless `PLAYWRIGHT_INTERNET=on` is set in `.env`. [docs/security.md](docs/security.md) explains why and lists what each container is allowed to do.
 
 ## Requirements
 
