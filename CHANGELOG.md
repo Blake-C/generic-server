@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - A `playwright` service that runs the Playwright MCP server 0.0.83 with headless Chromium, so an AI agent can open the site and its admin and save screenshots to `./data/screenshots`. The MCP server is at http://localhost:24217/mcp, and `.mcp.json` connects Claude Code to it.
-- `docs/playwright.md`, which covers the URLs the browser opens, where screenshots are saved, logging in, and drawing arrows on a page before a screenshot.
+- `docs/playwright.md`, which covers the URLs the browser opens, where screenshots are saved, logging in, drawing arrows on a page before a screenshot, and updating the image.
 
 ### Changed
 
