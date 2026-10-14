@@ -39,7 +39,7 @@ Every image tag is pinned to an exact version.
 
 ### Why cli has a writable root filesystem
 
-light-cli's zsh setup writes `~/.zcompdump` when it starts, and Corepack, Composer, and wp-cli keep caches in the webdev home folder. A tmpfs mount covers a folder, which cannot replace a single file like `~/.zcompdump`. When the caches were pointed somewhere else, Corepack could no longer find the pnpm 12.3.4 that light-cli pins and downloaded a different version. The cli container keeps a writable root filesystem, and anything it writes outside the mounted folders is deleted when the container is recreated.
+light-cli's zsh setup writes `~/.zcompdump` when it starts, and Corepack, Composer, and wp-cli keep caches in the webdev home folder. A tmpfs mount covers a folder, which cannot replace a single file like `~/.zcompdump`. When the caches were pointed somewhere else, Corepack could no longer find the pnpm version that light-cli pins and downloaded a different version. The cli container keeps a writable root filesystem, and anything it writes outside the mounted folders is deleted when the container is recreated.
 
 ## Mounts
 

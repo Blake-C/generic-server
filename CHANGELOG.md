@@ -4,6 +4,12 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.1] - 2026-10-14
+
+### Changed
+
+- The cli container uses light-cli 6.8.0, which updates Alpine to 3.24.2, npm to 11.21.0, and pnpm to 12.10.1.
+
 ## [1.7.0] - 2026-10-13
 
 ### Added

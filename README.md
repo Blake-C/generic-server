@@ -26,7 +26,7 @@ Only the gateway, playwright, php, and cli containers can reach the internet. Th
 ## Requirements
 
 - Docker Desktop
-- The `digitalblake/light-cli:6.7.0` image. Versions 6.5.0 and 6.6.0 add the PHP extensions that Drush, the Joomla installer, and the apps in [docs/other-apps.md](docs/other-apps.md) need, and 6.7.0 adds pdo_pgsql for Drupal CMS. Build it from the `light-cli` repository with `docker build -t digitalblake/light-cli:6.7.0 .` until it is published to Docker Hub.
+- The `digitalblake/light-cli:6.8.0` image. Versions 6.5.0 and 6.6.0 add the PHP extensions that Drush, the Joomla installer, and the apps in [docs/other-apps.md](docs/other-apps.md) need, 6.7.0 adds pdo_pgsql for Drupal CMS, and 6.8.0 updates Alpine, npm, and pnpm. Build it from the `light-cli` repository with `docker build -t digitalblake/light-cli:6.8.0 .` until it is published to Docker Hub.
 
 ## Setup
 
