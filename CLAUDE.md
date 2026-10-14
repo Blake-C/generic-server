@@ -126,5 +126,5 @@ The nginx service mounts `docker/nginx/${CMS}.conf.template` with `create_host_p
 
 - Load the `plain-statements` skill before editing README.md, CHANGELOG.md, or `docs/`.
 - The `statements-lint` hook runs on every Markdown edit.
-- CHANGELOG.md follows Keep a Changelog, with one version per feature.
+- CHANGELOG.md follows Keep a Changelog, with one version per day. A later change on the same day goes into that day's section.
 - `docs/other-apps.md` only lists apps that were installed and loaded in the stack, with the version tested.
