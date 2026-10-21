@@ -69,7 +69,7 @@ There is no test suite. A change is verified by running the stack:
 - Format Markdown and JSON with Prettier through light-cli, because Prettier is not installed on the host:
 
     ```sh
-    docker run --rm -v "$PWD":/work -w /work digitalblake/light-cli:6.8.0 sh -c 'npx --yes prettier@3 --print-width 120 --no-semi --single-quote --tab-width 4 --trailing-comma es5 --use-tabs --write README.md CHANGELOG.md docs/*.md'
+    docker run --rm -v "$PWD":/work -w /work digitalblake/light-cli:6.8.1 sh -c 'npx --yes prettier@3 --print-width 120 --no-semi --single-quote --tab-width 4 --trailing-comma es5 --use-tabs --write README.md CHANGELOG.md docs/*.md'
     ```
 
 - Run a Snyk container scan on the built `generic-server-php` and `generic-server-webgrind` images. Snyk cannot reach Docker Desktop, so `docker save` each image to a tar file and scan `docker-archive:<path>`.

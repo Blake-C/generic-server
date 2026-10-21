@@ -115,7 +115,7 @@ services:
 
   cli:
     <<: *hardening
-    image: digitalblake/light-cli:6.8.0
+    image: digitalblake/light-cli:6.8.1
     restart: 'no'
     read_only: false
     mem_limit: 2g

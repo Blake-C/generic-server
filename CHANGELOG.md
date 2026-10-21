@@ -4,6 +4,12 @@ All notable changes to this project are recorded in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.2] - 2026-10-21
+
+### Changed
+
+- The cli container uses light-cli 6.8.1, which updates PHP to 8.4.27 to fix CVE-2026-109618 and CVE-2026-109619 and updates mysql-client to 11.8.9.
+
 ## [1.7.1] - 2026-10-14
 
 ### Changed
