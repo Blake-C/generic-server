@@ -1,4 +1,4 @@
-FROM php:8.4.26-fpm-alpine3.24
+FROM php:8.4.27-fpm-alpine3.24
 
 ARG XDEBUG_VERSION=3.5.3
 ARG REDIS_VERSION=6.3.0

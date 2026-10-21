@@ -1,4 +1,4 @@
-FROM php:8.4.26-fpm-alpine3.24 AS source
+FROM php:8.4.27-fpm-alpine3.24 AS source
 
 ARG WEBGRIND_VERSION=1.9.4
 ARG WEBGRIND_SHA256=63dcf4b045b996c68f733f980b3493a82d65ef808c24a4b12bd72b80eca46f74
@@ -19,7 +19,7 @@ RUN apk add --no-cache g++ make zlib-dev \
 		config.php \
 	&& rm -rf Dockerfile docker-compose.yml package.sh .github
 
-FROM php:8.4.26-fpm-alpine3.24
+FROM php:8.4.27-fpm-alpine3.24
 
 RUN apk upgrade --no-cache \
 	&& apk add --no-cache graphviz python3 libstdc++ zlib

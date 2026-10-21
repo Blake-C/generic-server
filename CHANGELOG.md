@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - The cli container uses light-cli 6.8.1, which updates PHP to 8.4.27 to fix CVE-2026-109618 and CVE-2026-109619 and updates mysql-client to 11.8.9.
+- The php and webgrind images build on `php:8.4.27-fpm-alpine3.24`, so the PHP-FPM that serves the site also has the PHP 8.4.27 fixes.
 
 ## [1.7.1] - 2026-10-14
 

@@ -86,7 +86,7 @@ services:
     <<: *hardening
     build:
       context: ./docker/php
-    image: generic-server-php:8.4.26
+    image: generic-server-php:8.4.27
     mem_limit: 1g
     cpus: 2
     environment:
