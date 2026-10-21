@@ -4,15 +4,17 @@ These settings are tuned for one developer working on one site on a laptop. Most
 
 ## PHP (`docker/php/php.ini`)
 
-| Setting                                | Value                  | Reason                                                                                               |
-| -------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| `memory_limit`                         | 512M                   | Drupal installs and large admin screens in all three CMSs need more than the 128M default            |
-| `upload_max_filesize`, `post_max_size` | 64M                    | Matches `client_max_body_size` in NGINX so large media uploads are not cut off                       |
-| `max_execution_time`                   | 300                    | Gives slow installer and update requests time to finish, and matches `fastcgi_read_timeout` in NGINX |
-| `max_input_vars`                       | 5000                   | Large menus and permission forms in Joomla and Drupal post more than the 1000 default                |
-| `display_errors`                       | On                     | Shows errors in the browser while developing                                                         |
-| `error_log`                            | `/proc/self/fd/2`      | Sends PHP errors to `docker compose logs php`                                                        |
-| `sendmail_path`                        | `/usr/bin/msmtp -t -i` | Sends mail to Mailpit using `docker/php/msmtprc`                                                     |
+| Setting                           | Value                  | Reason                                                                                                                                                                                                  |
+| --------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `memory_limit`                    | 512M                   | Drupal installs and large admin screens in all three CMSs need more than the 128M default                                                                                                               |
+| `post_max_size`                   | 32M                    | The [php.net advisory for CVE-2026-109618](https://www.php.net/archive/2026.php#2026-10-21-5) sets 32M for sites that take file uploads, and `client_max_body_size` in NGINX and the gateway matches it |
+| `upload_max_filesize`             | 30M                    | The same advisory keeps `upload_max_filesize` below `post_max_size`                                                                                                                                     |
+| `session.upload_progress.enabled` | 0                      | The same advisory turns it off to block the confirmed attack path for CVE-2026-109619, and it has to be set in php.ini because `ini_set()` and `.user.ini` apply too late                               |
+| `max_execution_time`              | 300                    | Gives slow installer and update requests time to finish, and matches `fastcgi_read_timeout` in NGINX                                                                                                    |
+| `max_input_vars`                  | 5000                   | Large menus and permission forms in Joomla and Drupal post more than the 1000 default                                                                                                                   |
+| `display_errors`                  | On                     | Shows errors in the browser while developing                                                                                                                                                            |
+| `error_log`                       | `/proc/self/fd/2`      | Sends PHP errors to `docker compose logs php`                                                                                                                                                           |
+| `sendmail_path`                   | `/usr/bin/msmtp -t -i` | Sends mail to Mailpit using `docker/php/msmtprc`                                                                                                                                                        |
 
 The cli container has its own `docker/cli/php.ini`, which raises `memory_limit` to 1G. light-cli's PHP default of 128M ran out of memory while `wp core download` unpacked WordPress.
 

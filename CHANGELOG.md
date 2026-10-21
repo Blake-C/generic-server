@@ -11,6 +11,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The cli container uses light-cli 6.8.1, which updates PHP to 8.4.27 to fix CVE-2026-109618 and CVE-2026-109619 and updates mysql-client to 11.8.9.
 - The php and webgrind images build on `php:8.4.27-fpm-alpine3.24`, so the PHP-FPM that serves the site also has the PHP 8.4.27 fixes.
 
+### Security
+
+- `docker/php/php.ini` applies three php.ini settings from the [php.net advisory](https://www.php.net/archive/2026.php#2026-10-21-5) for CVE-2026-109618 and CVE-2026-109619, the same three that `core-wp` uses. php.net says these settings block the confirmed attack paths but not every variant, so they stay in place on 8.4.27. The file sets the following:
+    - `session.upload_progress.enabled = 0`
+    - `post_max_size = 32M`, down from 64M
+    - `upload_max_filesize = 30M`, down from 64M, which stays below `post_max_size` as php.net requires
+- `client_max_body_size` in the nginx and gateway configs is 32M, down from 64M, to match `post_max_size`.
+
 ## [1.7.1] - 2026-10-14
 
 ### Changed
